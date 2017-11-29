@@ -6,7 +6,7 @@ package main;
  * @author eau
  *
  */
-public class URI {
+public class SpotifyURI {
 	public String user;
 	public String playlist;
 	public String artist;
@@ -17,7 +17,7 @@ public class URI {
 	 * Constructor
 	 * @param uri
 	 */
-	public URI(String uri) {
+	public SpotifyURI(String uri) {
 		parseUri(uri);
 	}
 	

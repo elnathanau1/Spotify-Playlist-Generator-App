@@ -1,7 +1,11 @@
 package spotifyObjects;
 
+import java.util.Arrays;
+
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import com.fasterxml.jackson.annotation.JsonProperty;
+
+import main.API;
 
 
 /**
@@ -9,8 +13,12 @@ import com.fasterxml.jackson.annotation.JsonProperty;
  * @author eau
  *
  */
-@JsonIgnoreProperties(value = {"external_ids", "album", "external_urls", "popularity"})
+
+@JsonIgnoreProperties(ignoreUnknown=true)
 public class Track {
+	
+	@JsonProperty("album")
+	public Album album;
 	
 	@JsonProperty("artists")
 	public Artist[] artists;
@@ -38,6 +46,9 @@ public class Track {
 
 	@JsonProperty("name")
 	public String name;
+	
+	@JsonProperty("popularity")
+	public int popularity;
 
 	@JsonProperty("preview_url")
 	public String preview_url;
@@ -51,26 +62,64 @@ public class Track {
 	@JsonProperty("uri")
 	public String uri;
 	
+	public AudioFeatures audioFeatures;
+	
+	public double heuristicValue;
+	
 	public Track() {
 		
 	}
 	
-	public Track(Artist[] artists, String[] available_markets, int disc_number, int duration_ms, boolean explicit,
-			String href, String id, boolean is_playable, String name, String preview_url, int track_number, String type,
-			String uri) {
-		super();
-		this.artists = artists;
-		this.available_markets = available_markets;
-		this.disc_number = disc_number;
-		this.duration_ms = duration_ms;
-		this.explicit = explicit;
-		this.href = href;
-		this.id = id;
-		this.is_playable = is_playable;
-		this.name = name;
-		this.preview_url = preview_url;
-		this.track_number = track_number;
-		this.type = type;
-		this.uri = uri;
+	public String toString() {
+		String returnString = "";
+		returnString += "Name: " + name + "\n";
+		returnString += "Artist: " + getArtistsString() + "\n";
+		returnString += "Album: " + album.name + "\n";
+		
+		return returnString;
+	}
+	
+	private String getArtistsString() {
+		String returnString = "[";
+		for(int i = 0; i < artists.length; i++) {
+			returnString += artists[i].name;
+			if(i < artists.length - 1) {
+				returnString += ", ";
+			}
+		}
+		returnString += "]";
+		
+		return returnString;
+	}
+	
+	public String toFullString() {
+		String returnString = toString();
+		returnString += "Available Markets: " + Arrays.toString(available_markets) + "\n";
+		returnString += "Disc Number: " + disc_number + "\n";
+		returnString += "Track_number: " + track_number + "\n";
+		returnString += "Duration (ms): " + duration_ms + "\n";
+		returnString += "Explicit: " + explicit + "\n";
+		returnString += "href: " + href + "\n";
+		returnString += "id: " + id + "\n";
+		returnString += "Is playable: " + is_playable + "\n";
+		returnString += "Popularity: " + popularity + "\n";
+		returnString += "preview_url: " + preview_url + "\n";
+		returnString += "type: " + type + "\n";
+		returnString += "uri: " + uri + "\n";
+
+		return returnString;
+	}
+
+	public void addAudioFeatures(String accessToken) {
+		audioFeatures = API.getAudioFeatures(uri, accessToken);
+	}
+	
+	public boolean equals(Track otherTrack) {
+		if(uri.equals(otherTrack.uri)) {
+			return true;
+		}
+		else {
+			return false;
+		}
 	}
 }
