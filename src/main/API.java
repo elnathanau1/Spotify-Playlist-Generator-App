@@ -107,7 +107,7 @@ public class API {
 			HttpEntity entity = response.getEntity();
 			if (entity != null) {
 				InputStream inputStream = entity.getContent();
-//				printStream(inputStream);
+				//				printStream(inputStream);
 				ObjectMapper objectMapper = new ObjectMapper();
 
 				Artist[] artist = objectMapper.readValue(inputStream, RelatedArtists.class).artists;
@@ -119,7 +119,7 @@ public class API {
 		catch(Exception e) {
 			e.printStackTrace();
 		}
-		
+
 		return null;
 	}
 
@@ -155,6 +155,46 @@ public class API {
 			e.printStackTrace();
 		}
 
+		return null;
+	}
+
+	/**
+	 * Returns an arrayList of AudioFeature objects from an ArrayList of Tracks
+	 * @param tracks
+	 * @param accessToken
+	 * @return
+	 */
+	public static Artist[] getSeveralArtists(ArrayList<String> uris, String accessToken) {
+		try {
+			String url = "https://api.spotify.com/v1/artists?ids=";
+			for(int i = 0; i < uris.size(); i++) {
+				url += uris.get(i);
+				if(i < uris.size() - 1) {
+					url += ",";
+				}
+			}
+			HttpGet httpget = new HttpGet(url);
+			httpget.setHeader("Accept", "application/json");
+			httpget.setHeader("Authorization", "Bearer " + accessToken);
+
+			CloseableHttpClient httpclient = HttpClients.createDefault();
+			CloseableHttpResponse response = httpclient.execute(httpget);
+
+			HttpEntity entity = response.getEntity();
+			if (entity != null) {
+				InputStream inputStream = entity.getContent();
+				ObjectMapper objectMapper = new ObjectMapper();
+
+				Artist[] artists = objectMapper.readValue(inputStream, RelatedArtists.class).artists;
+				System.out.println("!!!");
+				return artists;
+			}
+			response.close();
+		} 
+		catch(Exception e) {
+			e.printStackTrace();
+		}
+		
 		return null;
 	}
 	
@@ -255,7 +295,7 @@ public class API {
 
 		return null;
 	}
-	
+
 	/**
 	 * Returns Playlist object from SpotifyURI string
 	 * @param input
@@ -278,12 +318,11 @@ public class API {
 
 			return playlist;
 
-
 		} catch (Exception e) {
 			e.printStackTrace();
 		}
 		return null;
-
+		
 	}
 
 	/**
@@ -421,7 +460,7 @@ public class API {
 	public static void addTracksToPlaylist(String input, ArrayList<Track> tracksToAdd, String accessToken) {
 		//Decode Spotify URI
 		SpotifyURI spotifyURI = new SpotifyURI(input);
-		
+
 		//rip the URIs from tracksToAdd, put them into a new String[]
 		String[] trackURIs = new String[tracksToAdd.size()];
 		for(int i = 0; i < tracksToAdd.size(); i++) {
@@ -457,6 +496,49 @@ public class API {
 	}
 
 	/**
+	 * Takes in an array of Track objects, and adds them to playlist represented by SpotifyURI input
+	 * @param input
+	 * @param tracksToAdd
+	 * @param accessToken
+	 */
+	public static void removeTrack(String input, String trackURI, String accessToken) {
+		//Decode Spotify URI
+		SpotifyURI spotifyURI = new SpotifyURI(input);
+
+		try {
+			//Set up url, set headers
+			HttpDeleteWithBody httpDelete = new HttpDeleteWithBody("https://api.spotify.com/v1/users/" + spotifyURI.user + "/playlists/" + spotifyURI.playlist + "/tracks");
+			httpDelete.setHeader("Authorization", "Bearer " + accessToken);
+			httpDelete.setHeader("Content-Type", "application/json");
+
+			//Set up request body in JSON format
+			ObjectMapper mapper = new ObjectMapper();
+			ObjectNode objectNode = mapper.createObjectNode();
+			objectNode.put("uri", trackURI);
+			ObjectNode[] objectNodes = {objectNode};
+
+			ArrayNode array = mapper.valueToTree(objectNodes);
+			objectNode.putArray("tracks").addAll(array);
+
+			//Set request body
+			StringEntity stringEntity = new StringEntity(objectNode.toString());
+			httpDelete.setEntity(stringEntity);
+
+			//Create client, run.
+			CloseableHttpClient httpclient = HttpClients.createDefault();
+			CloseableHttpResponse response = httpclient.execute(httpDelete);
+
+			response.close();
+		} 
+		catch(Exception e) {
+			e.printStackTrace();
+		}
+
+	}
+
+	
+	
+	/**
 	 * Skips to the next track in Spotify's playback (in other app)
 	 * @param accessToken
 	 */
@@ -476,7 +558,7 @@ public class API {
 			e.printStackTrace();
 		}
 	}
-	
+
 	/**
 	 * Skips to the previous track in Spotify's playback (in other app)
 	 * @param accessToken
@@ -497,7 +579,7 @@ public class API {
 			e.printStackTrace();
 		}
 	}
-	
+
 	/**
 	 * Plays the playlist/album that playlistURI represents in Spotify's playback (in other app)
 	 * @param playlistURI
@@ -529,6 +611,61 @@ public class API {
 		}
 	}
 	
+	
+	public static void playbackResume(String accessToken) {
+		try {
+			//Set up url, set headers
+			HttpPut httpPut = new HttpPut("https://api.spotify.com/v1/me/player/play");
+			httpPut.setHeader("Authorization", "Bearer " + accessToken);
+
+			//Create client, run.
+			CloseableHttpClient httpclient = HttpClients.createDefault();
+			CloseableHttpResponse response = httpclient.execute(httpPut);
+
+			response.close();
+		} 
+		catch(Exception e) {
+			e.printStackTrace();
+		}
+	}
+
+	/**
+	 * Plays the tracks within queueURIs
+	 * @param playlistURI
+	 * @param accessToken
+	 */
+	public static void playbackPlayTracks(ArrayList<String> queueURIs, String accessToken) {
+		//rip the URIs from tracksToAdd, put them into a new String[]
+		String[] trackURIs = new String[queueURIs.size()];
+		for(int i = 0; i < queueURIs.size(); i++) {
+			trackURIs[i] = queueURIs.get(i);
+		}
+		try {
+			//Set up url, set headers
+			HttpPut httpPut = new HttpPut("https://api.spotify.com/v1/me/player/play");
+			httpPut.setHeader("Authorization", "Bearer " + accessToken);
+
+			//Set up request body in JSON format
+			ObjectMapper mapper = new ObjectMapper();
+			ObjectNode objectNode = mapper.createObjectNode();
+			ArrayNode array = mapper.valueToTree(trackURIs);
+			objectNode.putArray("uris").addAll(array);
+
+			//Set request body
+			StringEntity stringEntity = new StringEntity(objectNode.toString());
+			httpPut.setEntity(stringEntity);
+
+			//Create client, run.
+			CloseableHttpClient httpclient = HttpClients.createDefault();
+			CloseableHttpResponse response = httpclient.execute(httpPut);
+
+			response.close();
+		} 
+		catch(Exception e) {
+			e.printStackTrace();
+		}
+	}
+
 	public static void playlistPause(String accessToken) {
 		try {
 			//Set up url, set headers
@@ -554,4 +691,27 @@ public class API {
 		String result = s.hasNext() ? s.next() : "";
 		System.out.println(result);
 	}
+}
+
+//from https://daweini.wordpress.com/2013/12/20/apache-httpclient-send-entity-body-in-a-http-delete-request/
+class HttpDeleteWithBody extends HttpEntityEnclosingRequestBase {
+  public static final String METHOD_NAME = "DELETE";
+
+  public String getMethod() {
+      return METHOD_NAME;
+  }
+
+  public HttpDeleteWithBody(final String uri) {
+      super();
+      setURI(URI.create(uri));
+  }
+
+  public HttpDeleteWithBody(final URI uri) {
+      super();
+      setURI(uri);
+  }
+
+  public HttpDeleteWithBody() {
+      super();
+  }
 }

@@ -14,15 +14,49 @@ import main.*;
 public class Agent {
 	public Track rootTrack;					// track that the agent should use as the control
 	public String accessToken;				// Token necessary for API calls
+	
+	public int numTracks;
+	public String name;
+	public boolean isPublic;
+	public boolean collaborative;
+	public String description;
+	public ArrayList<Track> addedTracks;
+	public ArrayList<Track> potentialTracks;
+	public ArrayList<String> addedArtists;
 
 	/**
-	 * Constructor
+	 * Default Constructor
+	 */
+	public Agent() {
+		rootTrack = null;
+		accessToken = "";
+		addedTracks = new ArrayList<Track>();
+		potentialTracks = new ArrayList<Track>();
+		setDefaults();
+	}
+
+	/**
+	 * Set default values for variables
+	 */
+	private void setDefaults() {
+		numTracks = 10;
+		name = "Default playlist name";
+		isPublic = false;
+		collaborative = false;
+		description = "";
+	}
+	
+	/**
+	 * Constructor with root tracks
 	 * @param root
 	 * @param newAccessToken
 	 */
 	public Agent(Track root, String newAccessToken) {
 		rootTrack = root;
 		accessToken = newAccessToken;
+		addedTracks = new ArrayList<Track>();
+		potentialTracks = new ArrayList<Track>();
+		setDefaults();
 	}
 
 	/**
@@ -30,13 +64,14 @@ public class Agent {
 	 * @param numTracks
 	 * @return
 	 */
-	public Playlist createPlaylist(int numTracks, String name) {
-		// Create a playlist with name
-		Playlist newPlaylist = API.createPlaylist("spotify:user:125980338", accessToken, name);
+	public Playlist createPlaylist() {
+		// Create a playlist with params
+		CurrentUser user = API.getCurrentUser(accessToken);
+		Playlist newPlaylist = API.createPlaylist(user.uri, accessToken, name, isPublic, collaborative, description);
 
 		// create an arrayList of potential tracks
-		ArrayList<Track> potentialTracks = getPotentialTracks();
-
+		potentialTracks = getPotentialTracks();
+		
 		// add audio features to the potential tracks 100 tracks at a time (minimize api calls to not hit limit)
 		int a = 0;
 		int b = 0;
@@ -58,6 +93,7 @@ public class Agent {
 
 		// add audioFeatures for rootTrack
 		rootTrack.audioFeatures = API.getAudioFeatures(rootTrack.uri, accessToken);
+//		rootTrack.genres = API.getArtist(rootTrack.artists[0].uri, accessToken).genres;
 		
 		// set the heuristic value for each track
 		for(Track testTrack : potentialTracks) {
@@ -86,6 +122,7 @@ public class Agent {
 			numTracksLeft -= tracksToAdd.size();
 			potentialTracks.removeAll(tracksToAdd);
 			API.addTracksToPlaylist(newPlaylist.uri, tracksToAdd, accessToken);
+			addedTracks.addAll(tracksToAdd);
 		}
 
 		return newPlaylist;
@@ -107,6 +144,7 @@ public class Agent {
 				//ADD MORE THINGS HERE
 				
 				for(Track track : topTracks) {
+					track.genres = artist.genres;
 					potentialTracks.add(track);
 				}
 			}
@@ -124,11 +162,11 @@ public class Agent {
 		//init
 		ArrayList<ArrayList<Artist>> artistTree = new ArrayList<ArrayList<Artist>>();
 		artistTree.add(new ArrayList<Artist>());
-		ArrayList<String> addedArtists = new ArrayList<String>();
+		addedArtists = new ArrayList<String>();
 
 		//set up root node[s]
 		for(int i = 0; i < rootTrack.artists.length; i++) {
-			artistTree.get(0).add(rootTrack.artists[i]);
+			artistTree.get(0).add(API.getArtist(rootTrack.artists[i].uri, accessToken));
 			addedArtists.add(rootTrack.artists[i].uri);
 		}
 
@@ -149,6 +187,78 @@ public class Agent {
 
 		return artistTree;
 
+	}
+
+	/**
+	 * Easy access method to set multiple vars at once
+	 * @param numTracks
+	 * @param name
+	 * @param isPublic
+	 * @param collab
+	 * @param desc
+	 */
+	public void setPlaylistSettings(int numTracks, String name, boolean isPublic, boolean collab, String desc) {
+		setNumTracks(numTracks);
+		setName(name);
+		setPublic(isPublic);
+		setCollaborative(collab);
+		setDescription(desc);
+	}
+	
+	public Track getRootTrack() {
+		return rootTrack;
+	}
+
+	public void setRootTrack(Track rootTrack) {
+		this.rootTrack = rootTrack;
+	}
+
+	public String getAccessToken() {
+		return accessToken;
+	}
+
+	public void setAccessToken(String accessToken) {
+		this.accessToken = accessToken;
+	}
+
+	public int getNumTracks() {
+		return numTracks;
+	}
+
+	public void setNumTracks(int numTracks) {
+		this.numTracks = numTracks;
+	}
+
+	public String getName() {
+		return name;
+	}
+
+	public void setName(String name) {
+		this.name = name;
+	}
+
+	public boolean isPublic() {
+		return isPublic;
+	}
+
+	public void setPublic(boolean isPublic) {
+		this.isPublic = isPublic;
+	}
+
+	public boolean isCollaborative() {
+		return collaborative;
+	}
+
+	public void setCollaborative(boolean collaborative) {
+		this.collaborative = collaborative;
+	}
+
+	public String getDescription() {
+		return description;
+	}
+
+	public void setDescription(String description) {
+		this.description = description;
 	}
 
 }

@@ -41,7 +41,8 @@ public class AgentTests {
 	public void createPlaylistTest() {
 		Track rootTrack = API.getTrack("spotify:track:20X9OeC606XNwEtDBOym5u", accessToken);
 		Agent testAgent = new Agent(rootTrack, accessToken);
-		Playlist testPlaylist = testAgent.createPlaylist(53, "Playlist Test");
+		testAgent.setPlaylistSettings(53, "Playlist Test", false, false, "");
+		Playlist testPlaylist = testAgent.createPlaylist();
 		String spotifyURI = testPlaylist.uri;
 		Playlist comparePlaylist = API.getPlaylist(spotifyURI, accessToken);
 		

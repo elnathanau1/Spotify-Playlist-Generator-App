@@ -66,6 +66,8 @@ public class Track {
 	
 	public double heuristicValue;
 	
+	public String[] genres;
+	
 	public Track() {
 		
 	}

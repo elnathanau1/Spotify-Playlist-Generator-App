@@ -78,8 +78,8 @@ public class Heuristic {
 	private static double getGenreDiff(Track rootTrack, Track testTrack) {
 		double numGenresSame = 0;
 		
-		String[] rootGenres = rootTrack.artists[0].genres;
-		String[] testGenres = testTrack.artists[0].genres;
+		String[] rootGenres = rootTrack.genres;
+		String[] testGenres = testTrack.genres;
 		if(rootGenres != null & testGenres != null) {
 			for(String genre : testGenres) {
 				if(Arrays.binarySearch(rootGenres, genre) > 0) {
@@ -90,4 +90,6 @@ public class Heuristic {
 
 		return numGenresSame*0.5;
 	}
+	
+//	private double
 }
