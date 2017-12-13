@@ -1,13 +1,15 @@
 package main;
 
 import display.*;
+import spotifyObjects.Artist;
+import spotifyObjects.Track;
 import ai.*;
 
 
 //get OAuth Token here: https://developer.spotify.com/web-api/console/get-album/
 
 public class Main {
-	public static String accessToken = "BQBbE5YCyU_SUdKJMtp7yPcdtMFAqGkzF9NO1YoOOmuBzNt7mgJxxIUnWhfVFpQ6wjP6Ow5NWhqH5U12DhKTQMYsdHwYzGuczUFCtszATmh4RDjoDfEoNIL91cmX28TjmdUd2vqdIDv5vVv_nm6chlpNuPS8XDp96rTPOMOZT77CWTJEDxbrde1Ynp5T2sLOPTbdgy1Yxz5gFJhneihOGfkj2N6HZWYb9EeEUpRzmlbjO0_OnxAwIbZNkV32bd_4qPGg0Zaeyg";
+	public static String accessToken = "BQD9B-8PhF8K8GkRFZaUXZfCtaO8hTR_PWSdoakhqNlJrK8hK2eC3laW_JZ7FyAgehOMMNASWahJfv7n5C6Llj3BKvwTZbloSWyLeIkmhcJLbOavVDLWfV7EAzymqnwdU8r2aDyoLEcQsDHrhG2CpTWfFfSFF2YUl6-j3VSopmGwVkgEmhGgqHJXxc6QbBgKP8TmPFmHDFpozViW9WM950-PML5x_yAaIS_W4mn9XP7dMKrPeymAeV5SHyMPCrfPhyPCHxNOZQ";
 	
 	public static Thread t2;
 	public static Agent agent;
@@ -15,6 +17,7 @@ public class Main {
 	public static void main(String[] args) {
 
 		agent = new Agent();
+		
 		
 		GUI gui = new GUI(1250, 1000);
 		

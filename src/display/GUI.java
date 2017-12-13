@@ -1,5 +1,7 @@
 package display;
 
+import java.util.ArrayList;
+
 import javax.swing.*;
 
 /**
@@ -17,10 +19,10 @@ public class GUI{
 	private static JTabbedPane tabPane;
 	//panels for tabbed pane:
 	public static StartPane panelOne;
-	public static RecTracksPane panelTwo;
-	public static RecTracksPane panelThree;
+	public static RecTracksPanes panelTwo;
+	public static RecTracksPanes panelThree;
 	public static JPanel panelFour;
-	public static JPanel panelFive;
+	public static AdvancedSettings panelFive;
 	
 	public static GUIData data;					//holds global data that other parts of GUI may need to access
 
@@ -50,10 +52,10 @@ public class GUI{
 
 		//Set up panels
 		panelOne = new StartPane();
-		panelTwo = new RecTracksPane(0);					// 0 for added tracks
-		panelThree = new RecTracksPane(1);				// 1 for recommended tracks
+		panelTwo = new RecTracksPanes(0);					// 0 for added tracks
+		panelThree = new RecTracksPanes(1);				// 1 for recommended tracks
 		panelFour = new JPanel();
-		panelFive = new JPanel();
+		panelFive = new AdvancedSettings();
 
 		//Set up tabs
 		tabPane = new JTabbedPane();
@@ -61,13 +63,12 @@ public class GUI{
 		tabPane.add("Added Tracks", panelTwo);
 		tabPane.add("Recommended Tracks", panelThree);
 		tabPane.add("Statistics", panelFour);
-		tabPane.add("Extra", panelFive);
+		tabPane.add("Advanced Settings", panelFive);
 
 		//disable tabs besides "Start" in the beginning
 		tabPane.setEnabledAt(1, false);
 		tabPane.setEnabledAt(2, false);
 		tabPane.setEnabledAt(3, false);
-		tabPane.setEnabledAt(4, false);
 
 		mainFrame.add(tabPane);
 

@@ -8,7 +8,7 @@ import javax.swing.*;
  * @author eau
  *
  */
-public class RecTracksPane extends JPanel{
+public class RecTracksPanes extends JPanel{
 	private static final long serialVersionUID = 1L;
 	public PlaylistTablePanel trackGridPanel;
 	public PlaybackPane playbackPane;
@@ -18,7 +18,7 @@ public class RecTracksPane extends JPanel{
 	 * Constructor, passes mode to playlist table panel
 	 * @param newMode
 	 */
-	public RecTracksPane(int newMode) {
+	public RecTracksPanes(int newMode) {
 		super();
 		mode = newMode;
 		

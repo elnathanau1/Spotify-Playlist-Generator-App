@@ -46,6 +46,7 @@ public class StartPane extends JPanel{
 		descriptionLabel = new JLabel("Playlist Description: ");
 
 		publicCheckBox = new JCheckBox("Public");
+		publicCheckBox.setSelected(true);
 		collabCheckBox = new JCheckBox("Collaborative");
 
 		rootTextField = new JTextField("Spotify URI of root track");

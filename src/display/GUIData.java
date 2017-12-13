@@ -19,6 +19,7 @@ public class GUIData {
 	public String selectedTrackURI;
 	public String selectedTrackGenres;
 	public boolean playbackPlaying;
+	public ArrayList<String> inputGenres;
 
 	public GUIData() {
 		playlist = null;
@@ -30,5 +31,6 @@ public class GUIData {
 		selectedTrackGenres = "";
 		selectedTrackURI = "";
 		playbackPlaying = false;
+		inputGenres = new ArrayList<String>();
 	}
 }

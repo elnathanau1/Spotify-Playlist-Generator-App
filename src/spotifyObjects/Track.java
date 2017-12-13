@@ -68,6 +68,8 @@ public class Track {
 	
 	public String[] genres;
 	
+	public int artistDepth;
+	
 	public Track() {
 		
 	}

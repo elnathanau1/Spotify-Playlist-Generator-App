@@ -14,7 +14,10 @@ import main.*;
 public class Agent {
 	public Track rootTrack;					// track that the agent should use as the control
 	public String accessToken;				// Token necessary for API calls
-	
+
+	public int randomTracks = 2;
+	public int artistDepth = 3;
+
 	public int numTracks;
 	public String name;
 	public boolean isPublic;
@@ -29,7 +32,7 @@ public class Agent {
 	 */
 	public Agent() {
 		rootTrack = null;
-		accessToken = "";
+		accessToken = Main.accessToken;
 		addedTracks = new ArrayList<Track>();
 		potentialTracks = new ArrayList<Track>();
 		setDefaults();
@@ -45,7 +48,7 @@ public class Agent {
 		collaborative = false;
 		description = "";
 	}
-	
+
 	/**
 	 * Constructor with root tracks
 	 * @param root
@@ -71,7 +74,7 @@ public class Agent {
 
 		// create an arrayList of potential tracks
 		potentialTracks = getPotentialTracks();
-		
+
 		// add audio features to the potential tracks 100 tracks at a time (minimize api calls to not hit limit)
 		int a = 0;
 		int b = 0;
@@ -84,17 +87,19 @@ public class Agent {
 			}
 			ArrayList<Track>tempList = new ArrayList<Track>(potentialTracks.subList(a, b));
 			AudioFeatures[] audioFeaturesToAdd = API.getSeveralAudioFeatures(tempList, accessToken);
-			for(int i = 0; i < audioFeaturesToAdd.length; i++) {
-				potentialTracks.get(a+i).audioFeatures = audioFeaturesToAdd[i];
+			if(audioFeaturesToAdd != null) {
+				for(int i = 0; i < audioFeaturesToAdd.length; i++) {
+					potentialTracks.get(a+i).audioFeatures = audioFeaturesToAdd[i];
+				}
 			}
 			a = b + 1;
-			
+
 		}
 
 		// add audioFeatures for rootTrack
 		rootTrack.audioFeatures = API.getAudioFeatures(rootTrack.uri, accessToken);
-//		rootTrack.genres = API.getArtist(rootTrack.artists[0].uri, accessToken).genres;
-		
+		//		rootTrack.genres = API.getArtist(rootTrack.artists[0].uri, accessToken).genres;
+
 		// set the heuristic value for each track
 		for(Track testTrack : potentialTracks) {
 			testTrack.heuristicValue = Heuristic.getHeuristic(rootTrack, testTrack);
@@ -108,7 +113,7 @@ public class Agent {
 			}
 		});
 
-		
+
 		//add top numTracks to playlist, 100 at a time to reduce api calls
 		int numTracksLeft = numTracks;
 		while(numTracksLeft > 0) {
@@ -135,22 +140,49 @@ public class Agent {
 	private ArrayList<Track> getPotentialTracks() {
 		ArrayList<Track> potentialTracks = new ArrayList<Track>();
 
-		ArrayList<ArrayList<Artist>> artistTree = createArtistTree(3);			//3 is the depth of the tree, make larger if more tracks are necessary
-		for(ArrayList<Artist> layer : artistTree) {
+		ArrayList<ArrayList<Artist>> artistTree = createArtistTree(artistDepth);			//3 is the depth of the tree, make larger if more tracks are necessary
+		for(int i = 0; i < artistTree.size(); i++) {
+			ArrayList<Artist> layer = artistTree.get(i);
 			for(Artist artist : layer) {
 				//Adds the artists top tracks
 				Track[] topTracks = API.getArtistTopTracks(artist.uri, accessToken);
-				
-				//ADD MORE THINGS HERE
-				
-				for(Track track : topTracks) {
-					track.genres = artist.genres;
-					potentialTracks.add(track);
+				if(topTracks != null) {
+					for(Track track : topTracks) {
+						track.genres = artist.genres;
+						track.artistDepth = i;
+						potentialTracks.add(track);
+					}
 				}
+
+				for(int a = 0; a < randomTracks; a++) {
+					Track track = getRandomTrack(artist);
+					if(track != null) {
+						track.genres = artist.genres;
+						track.artistDepth = i;
+						potentialTracks.add(track);
+					}
+
+				}
+
 			}
 		}
 
 		return potentialTracks;
+	}
+
+	public Track getRandomTrack(Artist artist) {
+		Album[] albums = API.getArtistsAlbums(artist.uri, accessToken);
+		if(albums != null) {
+			Album album = albums[(int)(Math.random() * albums.length)];
+			Track[] tracks = API.getAlbumTracks(album.uri, accessToken);
+			if(tracks != null) {
+				Track track = tracks[(int) (Math.random() * tracks.length)];
+				track = API.getTrack(track.uri, accessToken);
+				return track;
+			}
+		}
+
+		return null;
 	}
 
 	/**
@@ -204,7 +236,7 @@ public class Agent {
 		setCollaborative(collab);
 		setDescription(desc);
 	}
-	
+
 	public Track getRootTrack() {
 		return rootTrack;
 	}

@@ -133,7 +133,7 @@ public class APITests {
 	@Test
 	public void getPlaylistTest() {
 		Playlist testPlaylist = API.getPlaylist("spotify:user:125980338:playlist:7mL6o1kKqrpBm52wkuzoqj", accessToken);
-		assertEquals(testPlaylist.tracks.items.length, 9);
+		assertEquals(testPlaylist.tracks.items.length, 8);
 		assertEquals(testPlaylist.name, "CS 242 FINAL PLAYLIST TEST");
 		assertEquals(testPlaylist.uri, "spotify:user:125980338:playlist:7mL6o1kKqrpBm52wkuzoqj");
 		assertEquals(testPlaylist.tracks.items[0].track.uri, "spotify:track:6ZimCGmTrqKyUnidBoLG13");
