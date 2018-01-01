@@ -1,8 +1,6 @@
 package main;
 
 import display.*;
-import spotifyObjects.Artist;
-import spotifyObjects.Track;
 import ai.*;
 
 
